@@ -46,22 +46,6 @@ class Ensemble:
         logging.info('Ensemble instantiated.')
 
     #############################################
-    #   Connection
-    #############################################
-    def connect(self):
-        """Open the connection."""
-        try:
-            self._socket.connect((self._ip, self._port))
-            logging.info('Connected')
-        except ConnectionRefusedError:
-            logging.error("Unble to connect.")
-
-    def close(self):
-        """Close the connection."""
-        self._socket.close()
-        logging.info("Connection closed")
-
-    #############################################
     #    Define some safe operations. One is recommended to use only these operation.
     #############################################
     def run(self, command):
@@ -170,10 +154,22 @@ class Ensemble:
         self._socket.close()
         return x_pos
 
-    #############################################
-    #    Define some basic operation. However because of the unstable connection,
-    #    these operations may fail.
-    #############################################
+    ####################################################################
+    #    Operations that are not safe due to the unstable connection.
+    ####################################################################
+    def _connect(self):
+        """Open the connection."""
+        try:
+            self._socket.connect((self._ip, self._port))
+            logging.info('Connected')
+        except ConnectionRefusedError:
+            logging.error("Unble to connect.")
+
+    def _close(self):
+        """Close the connection."""
+        self._socket.close()
+        logging.info("Connection closed")
+
     def _run(self, command):
         """This method writes a command and returns the response,
         checking for an error code.
