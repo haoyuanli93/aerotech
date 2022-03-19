@@ -3,7 +3,6 @@ This module holds the class for interacting with an Aerotech XYZ.
 Author R.Cole
 """
 import socket
-import logging
 import datetime
 import time
 
@@ -41,10 +40,6 @@ class Ensemble:
         self._port = port
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        # Set up the Log
-        setup_log()
-        logging.info('Ensemble instantiated.')
-
     def move_relative(self, x_pos):
         """Move x axis to the specified position
 
@@ -64,28 +59,7 @@ class Ensemble:
         # Close
         self._socket.close()
 
-    def get_positions(self):
-        """Method to get the latest positions.
-
-        Returns
-        ----------
-        positions : float
-            The X positions.
-        """
-        # Establish the connection
-        self._socket.connect((self._ip, self._port))
-
-        # Get data
-        x_pos = float(self._run('PFBK X'))
-
-        # Close
-        self._socket.close()
-        return x_pos
-
-    ####################################################################
-    #    Operations that are not safe due to the unstable connection.
-    ####################################################################
-    def _connect(self):
+    def connect(self):
         """Open the connection."""
         try:
             self._socket.connect((self._ip, self._port))
@@ -149,36 +123,3 @@ class Ensemble:
         """
         x_pos = float(self._run('PFBK X'))
         return x_pos
-
-
-########################################
-#   Create a log file to save the log
-########################################
-def setup_log():
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-
-    # Get time stamp:
-    stamp = get_time_stamp()
-    log_file_name = "{}/Ensemble_{}.log".format(address, stamp)
-
-    # print
-    print("Save the log file to {}".format(log_file_name))
-
-    fh = logging.FileHandler(log_file_name)
-    fh.setLevel(logging.DEBUG)
-    fh.setFormatter(formatter)
-    logger.addHandler(fh)
-
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-    logger.debug('Logging to file {}'.format(log_file_name))
-
-
-def get_time_stamp():
-    stamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y_%m_%d_%H_%M_%S')
-    return stamp
